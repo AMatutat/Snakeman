@@ -193,12 +193,14 @@ def xy2i(x,y):
 
 #punkt auf feld verteilen
 def punktSetzen():
+  global time_since_last_point
   while True: 
     placeOn = rng.randrange(len(spielraster))
     if spielraster[placeOn] == 0:
         punkt = Punkt(i2xy(placeOn))
         spielraster[placeOn]=1
-        pgf.showSprite(punkt.sprite)  
+        pgf.showSprite(punkt.sprite) 
+        time_since_last_point=pgf.clock()
         return punkt
 
 #restart game
@@ -225,6 +227,7 @@ def restart():
     snakeman.addBody()
     snakeman.addBody()
     punkt= None
+
 
 #9 = Wall, 0= Empty_space, 1= Point, 5/6 = Teleport 7= Gate (to save ghosts)
 SPIELRASTER_START = [ 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
@@ -279,8 +282,10 @@ ANIMATION_REFRESH_RATE=100
 NEXT_ANIMATION=pgf.clock()+ANIMATION_REFRESH_RATE
 
 #SCORE 
+MIN_SCORE_POINT=50
 SCORE_FOR_POINT=100
 SCORE=-100
+time_since_last_point=pgf.clock()
 
 #TICK RATE
 ADD_TICK_RATE=10
@@ -299,6 +304,7 @@ snakeman.addBody()
 punkt= None
 spielraster=SPIELRASTER_START.copy()
 
+
 #gameloop
 while True:    
     #geschwindigkeit setzten
@@ -314,8 +320,9 @@ while True:
 
     #Neue Punkte Setzten
     if punkt==None:
-        punkt=punktSetzen()
-        SCORE+=SCORE_FOR_POINT
+        malus= min(((pgf.clock()-time_since_last_point)//1000),MIN_SCORE_POINT)
+        SCORE+=SCORE_FOR_POINT-malus
+        punkt=punktSetzen()       
         print(SCORE)
         TICK_RATE+=ADD_TICK_RATE
 
