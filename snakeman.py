@@ -211,6 +211,7 @@ def restart():
     global TICK_RATE
     global punkt
     global spielraster
+    global restartCounter
 
     #kill sprites
     pgf.killSprite(snakeman.sprite)
@@ -224,6 +225,7 @@ def restart():
     NEXT_ANIMATION=pgf.clock()+ANIMATION_REFRESH_RATE
     SCORE=-100
     TICK_RATE=START_RATE-ADD_TICK_RATE
+    restartCounter=0
     snakeman.addBody()
     snakeman.addBody()
     punkt= None
@@ -281,6 +283,10 @@ SNAKEMAN_START_Y=564
 ANIMATION_REFRESH_RATE=100
 NEXT_ANIMATION=pgf.clock()+ANIMATION_REFRESH_RATE
 
+#Restart
+WAIT_BEFORE_RESTART=5000
+restartCounter=0
+
 #SCORE 
 MIN_SCORE_POINT=50
 SCORE_FOR_POINT=100
@@ -323,7 +329,6 @@ while True:
         malus= min(((pgf.clock()-time_since_last_point)//1000),MIN_SCORE_POINT)
         SCORE+=SCORE_FOR_POINT-malus
         punkt=punktSetzen()       
-        print(SCORE)
         TICK_RATE+=ADD_TICK_RATE
 
     #ablauf logik
@@ -332,6 +337,13 @@ while True:
         punkt=snakeman.punktFressen(punkt)
         snakeman.bewegungsLogik()
         snakeman.bewege()
+    else:               
+        if(restartCounter==0):
+            restartCounter=pgf.clock()
+            print(SCORE) 
+        
+        elif(pgf.clock()-restartCounter>=WAIT_BEFORE_RESTART):
+            restart()
 
     #neue Animation
     if pgf.clock()>NEXT_ANIMATION: snakeman.animiere()
@@ -339,7 +351,6 @@ while True:
     #update View
     snakeman.anzeigen()
     pgf.updateDisplay()
-
     #reset Animationstimer
     if pgf.clock()>NEXT_ANIMATION:
         NEXT_ANIMATION=pgf.clock()+ANIMATION_REFRESH_RATE
